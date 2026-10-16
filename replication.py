@@ -6,7 +6,7 @@ Model (harvested population, Fig. 1 caption of the paper):
     X = biomass, K = carrying capacity (10), c = maximum harvest rate
 
 Part 1: fold bifurcation diagram + hysteresis   -> figures/fold_bifurcation.png
-Part 2: early-warning signals (s.d. and AR(1))  -> figures/early_warning.png
+Part 2: early-warning signals (residuals, s.d. and AR(1)) -> figures/early_warning.png
 
 Run:  python replication.py
 """
@@ -129,7 +129,7 @@ def kendall_tau(y):
 print(f"Kendall tau s.d.:  {kendall_tau(before['sd']):.2f}")
 print(f"Kendall tau AR(1): {kendall_tau(before['ar1']):.2f}")
 
-fig, axes = plt.subplots(3, 1, figsize=(6, 7), sharex=True)
+fig, axes = plt.subplots(4, 1, figsize=(6, 9), sharex=True)
 axes[0].plot(data["t"], data["x"], lw=0.8, color="tab:blue")
 axes[0].plot(before["t"], before["trend"], "k", lw=1.5, label="trend")
 axes[0].axvline(before["t"].iloc[-1], color="grey", ls=":", label="F2 reached")
@@ -137,14 +137,19 @@ axes[0].set_ylabel("Biomass X")
 axes[0].set_title("Harvest rate c increases from 1.0 to 2.8 over time")
 axes[0].legend(frameon=False, fontsize=8)
 
-axes[1].plot(before["t"], before["sd"], color="tab:blue")
-axes[1].set_ylabel("s.d.")
-axes[1].set_title(f"Standard deviation (Kendall tau = {kendall_tau(before['sd']):.2f})")
+axes[1].plot(before["t"], before["resid"], lw=0.6, color="tab:blue")
+axes[1].axhline(0, color="grey", lw=0.8)
+axes[1].set_ylabel("Residual")
+axes[1].set_title("Residuals after removing the trend")
 
-axes[2].plot(before["t"], before["ar1"], color="tab:blue")
-axes[2].set_ylabel("AR(1)")
-axes[2].set_title(f"Lag-1 autocorrelation (Kendall tau = {kendall_tau(before['ar1']):.2f})")
-axes[2].set_xlabel("Time")
+axes[2].plot(before["t"], before["sd"], color="tab:blue")
+axes[2].set_ylabel("s.d.")
+axes[2].set_title(f"Standard deviation (Kendall tau = {kendall_tau(before['sd']):.2f})")
+
+axes[3].plot(before["t"], before["ar1"], color="tab:blue")
+axes[3].set_ylabel("AR(1)")
+axes[3].set_title(f"Lag-1 autocorrelation (Kendall tau = {kendall_tau(before['ar1']):.2f})")
+axes[3].set_xlabel("Time")
 fig.tight_layout()
 fig.savefig("figures/early_warning.png", dpi=200)
 
